@@ -1,0 +1,2 @@
+mkdir -p sandbox
+docker run --rm --user `id -u`:`id -g` --env OBJECT_STORE_URL=${OBJECT_STORE_URL} --env SLEEP_RANGE_MAX=3 --volume `pwd`/sandbox:/mnt/mesos/sandbox --name stress_test ${USER}/ceph_stress
