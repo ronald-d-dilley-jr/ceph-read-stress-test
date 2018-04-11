@@ -1,0 +1,11 @@
+echo 'Saving Old Docker Image'
+docker tag ${USER}/ceph_stress ${USER}/ceph_stress:old
+
+echo 'Building New Docker Image'
+docker build -t ${USER}/ceph_stress .
+
+echo 'Removing Old Docker Image'
+docker rmi ${USER}/ceph_stress:old
+
+#echo 'Running Docker Image'
+#docker run --rm --name ceph_stress --volume `pwd`:/mnt/mesos/sandbox ${USER}/ceph_stress
