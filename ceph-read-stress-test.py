@@ -7,6 +7,10 @@ import logging
 import time
 import random
 import requests
+from osgeo import gdal, osr
+
+
+import emissivity_utilities as emis_util
 
 
 logger = None
@@ -147,10 +151,12 @@ class Web(object):
             content_size = int(req.headers['content-length'])
             file_size = int(os.stat(destination_file).st_size)
 
-            set_cookie = req.headers['Set-Cookie']
+            #set_cookie = req.headers['Set-Cookie']
 
-            logger.info('Set-Cookie = [{}], content_size = {}, file_size = {}'
-                        .format(set_cookie, content_size, file_size))
+            #logger.info('Set-Cookie = [{}], content_size = {}, file_size = {}'
+            #            .format(set_cookie, content_size, file_size))
+            logger.info('content_size = {}, file_size = {}'
+                        .format(content_size, file_size))
 
             if content_size != file_size or content_size != hard_size:
                 raise Exception('content_size = {}, file_size = {}'
@@ -195,6 +201,21 @@ def main():
         if status_code != requests.codes['ok']:
             if status_code != requests.codes['not_found']:
                 raise Exception('HTTP - Transfer Failed')
+
+        # Define the sub-dataset names
+        emis_ds_name = ''.join(['HDF5:"', data[index], '"://Emissivity/Mean'])
+        emis_sdev_ds_name = ''.join(['HDF5:"', data[index], '"://Emissivity/SDev'])
+        ndvi_ds_name = ''.join(['HDF5:"', data[index], '"://NDVI/Mean'])
+        lat_ds_name = ''.join(['HDF5:"', data[index], '"://Geolocation/Latitude'])
+        lon_ds_name = ''.join(['HDF5:"', data[index], '"://Geolocation/Longitude'])
+
+        aster_b13_data = emis_util.extract_raster_data(emis_ds_name, 4)
+        aster_b14_data = emis_util.extract_raster_data(emis_ds_name, 5)
+        aster_b13_sdev_data = emis_util.extract_raster_data(emis_sdev_ds_name, 4)
+        aster_b14_sdev_data = emis_util.extract_raster_data(emis_sdev_ds_name, 5)
+        aster_ndvi_data = emis_util.extract_raster_data(ndvi_ds_name, 1)
+        aster_lat_data = emis_util.extract_raster_data(lat_ds_name, 1)
+        aster_lon_data = emis_util.extract_raster_data(lon_ds_name, 1)
 
         time.sleep(sleep_seconds)
 
